@@ -5,7 +5,7 @@
     <reloadable>true</reloadable>
     <redirectLogger>false</redirectLogger>
     <updateXml>true</updateXml>
-    <warLocation>twitter.war</warLocation>
+    <warLocation>/Users/zhiguodeng/Documents/workspace/twitter/bin/twitter.war</warLocation>
     <extraInfo></extraInfo>
     <webPath>/twitter</webPath>
 </tomcatProjectProperties>

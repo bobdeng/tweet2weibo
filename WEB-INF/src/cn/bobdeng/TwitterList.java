@@ -1,14 +1,12 @@
 package cn.bobdeng;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.FileReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -78,10 +76,8 @@ public class TwitterList {
 			if (!file.exists()) {
 				return null;
 			}
-			InputStream input = new FileInputStream(file);
-			byte[] buffer = new byte[input.available()];
-			input.read(buffer);
-			return new String(buffer);
+			BufferedReader input = new BufferedReader(new FileReader(file));
+			return input.readLine();
 		} catch (Exception e) {
 
 		}

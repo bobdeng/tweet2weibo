@@ -41,7 +41,7 @@ public class Weibo {
 		for(String img:images){
 			listImages.add(readImage(img));
 		}
-		int width=800;
+		int width=1024;
 		int height=0;
 		for(BufferedImage img:listImages){
 			height+=(img.getHeight()*width)/img.getWidth();

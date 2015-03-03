@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>twitter</name>
+	<name>test</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -13,5 +13,7 @@
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>com.sysdeo.eclipse.tomcat.tomcatnature</nature>
+		<nature>net.sf.eclipse.tomcat.tomcatnature</nature>
 	</natures>
 </projectDescription>
