@@ -10,8 +10,10 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-public class Weibo {
+import com.sun.istack.internal.logging.Logger;
 
+public class Weibo {
+	Logger logger=Logger.getLogger(Weibo.class);
 	private String token;
 
 	public Weibo(String token) {
@@ -22,18 +24,21 @@ public class Weibo {
 	public void postWeibo(Tweet t) throws Exception {
 		String rlt = null;
 		if (t.getImages() == null || t.getImages().size() == 0) {
+			logger.info("发纯文本微博");
 			rlt = new HttpUtils()
 					.setUrl("https://api.weibo.com/2/statuses/update.json")
 					.addParam("status", t.getContent())
 					.addParam("access_token", token).httpsPost();
 		}else{
+			logger.info("发带图片微博");
 			rlt = new HttpUtils()
+			
 			.setUrl("https://upload.api.weibo.com/2/statuses/upload.json")
 			.addParam("status", t.getContent())
 			.addFile("pic", getOneImage(t.getImages()).getAbsolutePath())
 			.addParam("access_token", token).httpsUpload();
 		}
-		System.out.println(rlt);
+		logger.info(rlt);
 
 	}
 	private File getOneImage(List<String> images)throws Exception{
