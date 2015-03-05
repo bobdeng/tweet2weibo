@@ -29,8 +29,9 @@ public class Tweet {
 		this.images = images;
 		return this;
 	}
-	public void addImage(String img){
+	public Tweet addImage(String img){
 		images.add(img);
+		return this;
 	}
 	@Override
 	public String toString() {

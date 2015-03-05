@@ -1,21 +1,20 @@
 package cn.bobdeng;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import javax.imageio.ImageIO;
+import cn.bobdeng.TWeibo.OpenIdResult;
+import cn.bobdeng.TWeibo.UserInfo;
 
+import com.google.gson.Gson;
 import com.sun.istack.internal.logging.Logger;
 
-public class Weibo {
+public class Weibo implements WeiboInterface{
 	Logger logger=Logger.getLogger(Weibo.class);
 	private String token;
-
+	private String name;
 	public Weibo(String token) {
 		super();
 		this.token = token;
@@ -35,44 +34,13 @@ public class Weibo {
 			
 			.setUrl("https://upload.api.weibo.com/2/statuses/upload.json")
 			.addParam("status", t.getContent())
-			.addFile("pic", getOneImage(t.getImages()).getAbsolutePath())
+			.addFile("pic", new Utils().getOneImage(t.getImages()).getAbsolutePath())
 			.addParam("access_token", token).httpsUpload();
 		}
 		logger.info(rlt);
 
 	}
-	private File getOneImage(List<String> images)throws Exception{
-		List<BufferedImage> listImages=new ArrayList<BufferedImage>();
-		for(String img:images){
-			listImages.add(readImage(img));
-		}
-		int width=1024;
-		int height=0;
-		for(BufferedImage img:listImages){
-			height+=(img.getHeight()*width)/img.getWidth();
-		}
-		BufferedImage rlt=new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		Graphics2D g2=rlt.createGraphics();
-		g2.setColor(new Color(255,0,0));
-		g2.fillRect(0, 0, width, height);
-		g2.drawString("hello", 100, 100);
-		height=0;
-		for(BufferedImage img:listImages){
-			int drawHeight=(img.getHeight()*width)/img.getWidth();
-			g2.drawImage(img, 0, height, width, drawHeight,null);
-			height+=drawHeight;
-			//ImageIO.write(img, "jpg", new FileOutputStream("a"+height+"a.jpg"));
-		}
-		g2.dispose();
-		File tempJpg=new File("temp.jpg");
-		ImageIO.write(rlt, "jpg", tempJpg);
-		return tempJpg;
-	}
-	private BufferedImage readImage(String url)throws Exception{
-		byte[] data=new HttpUtils().setUrl(url).httpsDown();
-		return ImageIO.read(new ByteArrayInputStream(data));
-		
-	}
+	
 	public static void main(String[] args) throws Exception {
 		Weibo weibo = new Weibo("2.00jrXvCGEtKk4B385b3c86361s8yGD");
 		List<String> images = new ArrayList<String>();
@@ -81,6 +49,59 @@ public class Weibo {
 		//images.add("https://pbs.twimg.com/media/B_GJezeU4AEQLJ-.jpg:large");
 		//weibo.getOneImage(images);
 		weibo.postWeibo(new Tweet().setContent("测试"+System.currentTimeMillis()).setImages(images));
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return "新浪微博："+name;
+	}
+
+	public Weibo setName(String name) {
+		this.name = name;
+		return this;
+	}
+
+	@Override
+	public void updateName() throws Exception{
+		String rlt=new HttpUtils().setUrl("https://api.weibo.com/2/account/get_uid.json?access_token="+token).httpsGet();
+			OpenIdResult openIdResult=new Gson().fromJson(rlt, OpenIdResult.class);
+			updateName(openIdResult.uid);
+	}
+	private void updateName(String openId)throws Exception{
+		String rlt=new HttpUtils().setUrl("https://api.weibo.com/2/users/show.json?access_token="+token+"&uid="+openId)
+				.httpsGet();
+		logger.info(rlt);
+		UserInfo user=new Gson().fromJson(rlt, UserInfo.class);
+		this.name=user.getScreen_name();
+		
+	}
+	
+	public class OpenIdResult{
+		private String uid;
+
+		public String getUid() {
+			return uid;
+		}
+
+		public void setUid(String uid) {
+			this.uid = uid;
+		}
+
+		
+	}
+	public class UserInfo{
+		private String screen_name;
+
+		public String getScreen_name() {
+			return screen_name;
+		}
+
+		public void setScreen_name(String screen_name) {
+			this.screen_name = screen_name;
+		}
+
+		
 	}
 
 }

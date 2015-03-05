@@ -18,11 +18,13 @@ import com.sun.istack.internal.logging.Logger;
 public class Twitter {
 	Logger logger=Logger.getLogger(Twitter.class);
 	private String user;
-	private Weibo weibo;
+	private String name;
+	private WeiboInterface weibo;
 	private static final String RSS = "https://twitter.com/";
-	private static final String lastIdFile="/usr/local/config.txt";
-	public Twitter(String user, Weibo weibo) {
+	private static final String lastIdFile="/usr/local/";
+	public Twitter(String name,String user, WeiboInterface weibo) {
 		super();
+		this.name=name;
 		this.user = user;
 		this.weibo = weibo;
 	}
@@ -30,20 +32,31 @@ public class Twitter {
 	public void readPage() throws Exception {
 		List<Tweet> newList = readNewTweet();
 		for (int i =newList.size()-1; i >=0; i--) {
-			Thread.sleep(20000);
 			repostContent(newList.get(i));
+			if(!Constant.DEBUG)
+			{
+				Thread.sleep(20000);
+			}
 		}
 	}
 
 	private void repostContent(Tweet t) throws Exception {
 		System.out.println("repost " + t);
-		weibo.postWeibo(t);
+		if(!Constant.DEBUG)
+		{
+			weibo.postWeibo(t);
+		}
 		writeLastId(t.getId());
 
 	}
-
+	private File getLastIdFile(){
+		File file= new File("/usr/local/"+user+weibo.getName()+".txt");
+		logger.info("last id file"+file.getAbsolutePath());
+		return file;
+	}
 	private void writeLastId(String id) throws Exception {
-		File file = new File(lastIdFile);
+		logger.info("write last id "+lastIdFile+user +","+id+".txt");
+		File file = getLastIdFile();
 		if (!file.exists()) {
 			file.createNewFile();
 		}
@@ -75,7 +88,7 @@ public class Twitter {
 	private String getLastId() {
 		BufferedReader input=null;
 		try {
-			File file = new File(lastIdFile);
+			File file = getLastIdFile();
 			if (!file.exists()) {
 				return null;
 			}
@@ -128,12 +141,12 @@ public class Twitter {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Twitter tl = new Twitter("fangshimin", new Weibo(
+		Twitter tl = new Twitter("fangshimin1","fangshimin", new Weibo(
 				"2.00jrXvCGEtKk4B385b3c86361s8yGD"));
 		tl.readPage();
 	}
 
-	public Weibo getWeibo() {
+	public WeiboInterface getWeibo() {
 		return weibo;
 	}
 
@@ -141,4 +154,23 @@ public class Twitter {
 		this.weibo = weibo;
 		return this;
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public Twitter setName(String name) {
+		this.name = name;
+		return this;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public Twitter setUser(String user) {
+		this.user = user;
+		return this;
+	}
+	
 }

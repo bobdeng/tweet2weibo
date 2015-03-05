@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +41,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 
@@ -112,14 +114,16 @@ public class HttpUtils {
 				.setSSLSocketFactory(sslsf).build();
 		HttpPost post = new HttpPost(url);
 		MultipartEntityBuilder reqBuilder = MultipartEntityBuilder.create();
+		//reqBuilder.setCharset(Charset.forName("utf-8"));
 		for (FormFile ff : this.files) {
 			reqBuilder.addPart(ff.getName(),
 					new FileBody(new File(ff.getFileName())));
 		}
+		ContentType contentType=ContentType.create(HTTP.PLAIN_TEXT_TYPE, HTTP.UTF_8);
 		for (NameValuePair nv : this.params) {
 			reqBuilder.addPart(nv.getName(),
-					new StringBody(URLEncoder.encode(nv.getValue(), "utf-8"),
-							ContentType.TEXT_PLAIN));
+					new StringBody(nv.getValue(),
+							contentType));
 		}
 		for (Header h : headers) {
 			post.addHeader(h);
@@ -218,6 +222,7 @@ public class HttpUtils {
 					HttpEntity entity = response.getEntity();
 					return entity != null ? EntityUtils.toString(entity) : null;
 				} else {
+					System.out.println(EntityUtils.toString(response.getEntity()));
 					throw new ClientProtocolException(
 							"Unexpected response status: " + status);
 				}
